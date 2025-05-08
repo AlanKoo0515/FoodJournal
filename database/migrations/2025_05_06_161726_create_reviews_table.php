@@ -18,8 +18,8 @@ return new class extends Migration
             $table->integer('rating');
             $table->text('comment');
             $table->string('image_path')->nullable();
+            $table->string('status')->default('published');
             $table->timestamps();
-            //$table->softDeletes(); // for restore functionality
         });
     }
 
