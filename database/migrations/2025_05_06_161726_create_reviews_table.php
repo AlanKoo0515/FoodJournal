@@ -17,7 +17,9 @@ return new class extends Migration
             $table->foreignId('recipe_id')->constrained('recipes');
             $table->integer('rating');
             $table->text('comment');
+            $table->string('image_path')->nullable();
             $table->timestamps();
+            //$table->softDeletes(); // for restore functionality
         });
     }
 
