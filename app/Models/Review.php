@@ -12,9 +12,17 @@ class Review extends Model
     protected $fillable = [
         'user_id',
         'recipe_id',
-        'comment',
         'rating',
-        'image_path'
+        'comment',
+        'image_path',
+        'draft',
+        'draft_updated_at'
+    ];
+
+    protected $casts = [
+        'rating' => 'integer',
+        'draft' => 'boolean',
+        'draft_updated_at' => 'datetime',
     ];
     
     public function user()

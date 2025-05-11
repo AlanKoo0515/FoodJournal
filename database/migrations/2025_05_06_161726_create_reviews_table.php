@@ -18,8 +18,14 @@ return new class extends Migration
             $table->integer('rating');
             $table->text('comment');
             $table->string('image_path')->nullable();
-            $table->string('status')->default('published');
+            $table->boolean('draft')->default(false);
+            $table->timestamp('draft_updated_at')->nullable();
             $table->timestamps();
+
+        /**
+         * one user one published review for one recipe.
+         */
+        $table->unique(['user_id', 'recipe_id', 'draft']);
         });
     }
 
