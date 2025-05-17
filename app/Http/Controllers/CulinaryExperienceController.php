@@ -22,9 +22,10 @@ class CulinaryExperienceController extends Controller
     {
         $search = $request->input('search');
         $category = $request->input('category');
-        $experiences = $this->service->getAll($search, $category);
+        $ownership = $request->input('ownership');
+        $experiences = $this->service->getAll($search, $category, $ownership);
         return view('experiences.index', compact('experiences'));
-    }   
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -47,16 +48,16 @@ class CulinaryExperienceController extends Controller
             'date' => 'required|date',
             'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ]);
-    
+
         // Handle file upload
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('experiences', 'public');
             $validated['image_url'] = '/storage/' . $path;
         }
-    
+
         // Attach the currently authenticated user
         $validated['user_id'] = auth()->id();
-    
+
         $experience = $this->service->create($validated);
         return redirect()->route('experiences.index')->with('success', 'Experience created successfully!');
     }

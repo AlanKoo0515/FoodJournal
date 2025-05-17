@@ -6,7 +6,7 @@ use App\Models\CulinaryExperience;
 
 class CulinaryExperienceService
 {
-    public function getAll($search = null, $category = null)
+    public function getAll($search = null, $category = null, $ownership = null)
     {
         $query = CulinaryExperience::query();
         if ($search) {
@@ -19,6 +19,17 @@ class CulinaryExperienceService
         if ($category) {
             $query->where('category', $category);
         }
+
+        // Filter by ownership
+        if ($ownership === 'my') {
+            $query->where('user_id', auth()->id());
+        } elseif ($ownership === 'others') {
+            $query->where('user_id', '!=', auth()->id());
+        }
+
+        // Sort by creation date
+        $query->orderBy('created_at', 'asc');
+
         return $query->get();
     }
 
@@ -44,4 +55,4 @@ class CulinaryExperienceService
     {
         return CulinaryExperience::findOrFail($id);
     }
-} 
+}
