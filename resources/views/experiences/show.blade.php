@@ -4,7 +4,14 @@
 
 <x-app-layout>
     <div class="py-6 max-w-4xl mx-auto">
-       <!-- Header Section -->
+        <!-- Back Button -->
+        <div class="mb-4">
+            <button type="button" onclick="window.history.back()" class="flex items-center text-gray-600 hover:text-orange-500 font-semibold">
+                <x-heroicon-o-arrow-left class="h-5 w-5 mr-2" />
+                Back
+            </button>
+        </div>
+        <!-- Header Section -->
         <div class="flex items-center justify-between mb-6">
             <!-- Left side: Title + Info aligned left -->
             <div class="flex-1 min-w-0">
@@ -36,16 +43,11 @@
                         <x-heroicon-o-calendar class="h-6 w-6 ml-2 text-gray-400" />
                         {{ \Carbon\Carbon::parse($experience->date)->format('j/n/Y') }}
                     </span>
-
-                    <!-- Posted User -->
-                    <span class="flex items-center gap-1 whitespace-nowrap text-sm md:text-base">
-                        <x-heroicon-o-user class="h-6 w-6 ml-2 text-gray-400" />
-                        {{ $experience->user_id->name ?? 'Unknown' }}
-                    </span>
                 </div>
             </div>
 
             <!-- Right side: Buttons -->
+            @if(auth()->check() && auth()->id() === $experience->user_id)
             <div class="flex space-x-2 ml-4 flex-shrink-0">
                 <a href="{{ route('experiences.edit', $experience->id) }}"
                 class="bg-white border border-gray-200 p-2 rounded-md hover:bg-gray-100 transition"
@@ -64,15 +66,16 @@
                     </button>
                 </form>
             </div>
+            @endif
         </div>
 
 
         <!-- Combined Image and Content Section -->
         <div class="rounded-xl overflow-hidden bg-gray-100 mb-8 border border-gray-200">
             @if($experience->image_url)
-                <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}" class="w-full h-96 object-cover">
+                <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}" class="w-full h-[32rem] object-cover">
             @else
-                <div class="w-full h-96 flex items-center justify-center bg-gray-100">
+                <div class="w-full h-[32rem] flex items-center justify-center bg-gray-100">
                     <svg class="w-24 h-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 48 48">
                         <rect x="8" y="8" width="32" height="32" rx="4" fill="#f3f4f6" />
                         <path d="M16 32l6-8 6 8 6-12" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

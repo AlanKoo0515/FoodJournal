@@ -21,12 +21,10 @@ class CulinaryExperienceController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $experiences = $this->service->getAll($search);
-        // For API:
-        // return response()->json($experiences);
-        // For web:
+        $category = $request->input('category');
+        $experiences = $this->service->getAll($search, $category);
         return view('experiences.index', compact('experiences'));
-    }
+    }   
 
     /**
      * Show the form for creating a new resource.
@@ -91,8 +89,14 @@ class CulinaryExperienceController extends Controller
             'category' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'date' => 'required|date',
-            // Add image validation if needed
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('experiences', 'public');
+            $validated['image_url'] = '/storage/' . $path;
+        }
+
         $this->service->update($id, $validated);
         return redirect()->route('experiences.index')->with('success', 'Experience updated successfully!');
     }

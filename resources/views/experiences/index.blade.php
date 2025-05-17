@@ -10,15 +10,35 @@
                 <span class="text-xl mr-2">+</span> Add Experience
             </a>
         </div>
-        <form method="GET" action="{{ route('experiences.index') }}" class="mb-6">
+        <form method="GET" action="{{ route('experiences.index') }}" class="mb-6 flex flex-col md:flex-row gap-2 w-full" id="searchForm">
             <input
                 type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search experiences..."
-                class="w-full border border-gray-300 rounded px-4 py-2"
+                class="w-full md:w-3/4 border border-gray-300 rounded px-4 py-2"
+                id="searchInput"
             />
+            <select name="category" onchange="this.form.submit()" class="w-full md:w-1/4 border border-gray-300 rounded px-4 py-2">
+                <option value="">All Categories</option>
+                <option value="Cooking Class" @if(request('category')=='Cooking Class') selected @endif>Cooking Class</option>
+                <option value="Food Tour" @if(request('category')=='Food Tour') selected @endif>Food Tour</option>
+                <option value="Restaurant" @if(request('category')=='Restaurant') selected @endif>Restaurant</option>
+            </select>
         </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('searchInput');
+                const searchForm = document.getElementById('searchForm');
+                let timeout = null;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        searchForm.submit();
+                    }, 400); // Debounce for 400ms
+                });
+            });
+        </script>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($experiences as $experience)
@@ -26,15 +46,16 @@
                     <div class="relative">
                         @if($experience->image_url)
                             @if(Str::startsWith($experience->image_url, '/storage/'))
-                                <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}" class="w-full h-48 object-cover rounded-t-lg">
+                                <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}" class="w-full h-64 object-cover rounded-t-lg">
                             @else
-                                <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}" class="w-full h-48 object-cover rounded-t-lg">
+                                <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}" class="w-full h-64 object-cover rounded-t-lg">
                             @endif
                         @else
-                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-lg text-gray-400">
+                            <div class="w-full h-64 bg-gray-200 flex items-center justify-center rounded-t-lg text-gray-400">
                                 <span>No Image</span>
                             </div>
                         @endif
+                        @if(auth()->check() && auth()->id() === $experience->user_id)
                         <div class="absolute top-2 right-2 flex space-x-2">
                             <a href="{{ route('experiences.edit', $experience->id) }}"
                                class="bg-white p-2 rounded-md shadow hover:bg-gray-100" title="Edit">
@@ -48,6 +69,7 @@
                                 </button>
                             </form>
                         </div>
+                        @endif
                     </div>
                     <div class="p-4 flex-1 flex flex-col">
                         <h3 class="text-lg font-bold mb-2">{{ $experience->title }}</h3>

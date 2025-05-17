@@ -6,16 +6,18 @@ use App\Models\CulinaryExperience;
 
 class CulinaryExperienceService
 {
-    public function getAll($search = null)
+    public function getAll($search = null, $category = null)
     {
         $query = CulinaryExperience::query();
         if ($search) {
             $query->where('title', 'like', "%$search%")
-                  ->orWhere('description', 'like', "%$search%")
-                  ->orWhere('category', 'like', "%$search%")
-                  ->orWhere('location', 'like', "%$search%")
-                  ->orWhere('date', 'like', "%$search%")
-                  ;
+                ->orWhere('description', 'like', "%$search%")
+                ->orWhere('category', 'like', "%$search%")
+                ->orWhere('location', 'like', "%$search%")
+                ->orWhere('date', 'like', "%$search%");
+        }
+        if ($category) {
+            $query->where('category', $category);
         }
         return $query->get();
     }
