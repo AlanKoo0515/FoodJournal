@@ -15,38 +15,38 @@
                     <!-- Left Column -->
                     <div>
                         <div class="mb-4">
-                            <label class="block text-gray-700 font-bold mb-2" for="recipe_name">Recipe Name</label>
-                            <input type="text" name="recipe_name" id="recipe_name" value="{{ old('recipe_name') }}"
+                            <label class="block text-gray-700 font-bold mb-2" for="title">Recipe Name</label>
+                            <input type="text" name="title" id="title" value="{{ old('title') }}"
                                 required class="w-full border border-gray-300 rounded px-4 py-2" />
-                            @error('recipe_name')
+                            @error('title')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-gray-700 font-bold mb-2" for="serving_size">Serving Size</label>
-                            <input type="text" name="serving_size" id="serving_size" value="{{ old('serving_size') }}"
+                            <label class="block text-gray-700 font-bold mb-2" for="servings">Serving Size</label>
+                            <input type="number" name="servings" id="servings" value="{{ old('servings') }}"
                                 required class="w-full border border-gray-300 rounded px-4 py-2" />
-                            @error('serving_size')
+                            @error('servings')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="mb-4">
-                            <label class="block text-gray-700 font-bold mb-2" for="instruction">Instruction</label>
-                            <textarea name="instruction" id="instruction" rows="8" required
-                                class="w-full border border-gray-300 rounded px-4 py-2">{{ old('instruction') }}</textarea>
-                            @error('instruction')
+                            <label class="block text-gray-700 font-bold mb-2" for="instructions">Instruction</label>
+                            <textarea name="instructions" id="instructions" rows="8" required
+                                class="w-full border border-gray-300 rounded px-4 py-2">{{ old('instructions') }}</textarea>
+                            @error('instructions')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-bold mb-2" for="calories">Calories Per Serving</label>
-                                <input type="number" name="calories" id="calories" value="{{ old('calories') }}"
+                                <label class="block text-gray-700 font-bold mb-2" for="calories_per_serving">Calories Per Serving</label>
+                                <input type="number" name="calories_per_serving" id="calories_per_serving" value="{{ old('calories_per_serving') }}"
                                     required class="w-full border border-gray-300 rounded px-4 py-2" />
-                                @error('calories')
+                                @error('calories_per_serving')
                                     <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
