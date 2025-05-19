@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Recipe;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -9,9 +10,16 @@ class RecipeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('recipes.index');
+        $recipes = Recipe::query();
+        
+        if ($search = $request->input('search')) {
+            $recipes->where('title', 'like', "%{$search}%");
+        }
+
+        $recipes = $recipes->latest()->paginate(10);
+        return view('recipes.index', compact('recipes'));
     }
 
     /**
@@ -19,7 +27,7 @@ class RecipeController extends Controller
      */
     public function create()
     {
-        //
+        return view('recipes.create');
     }
 
     /**
@@ -27,7 +35,27 @@ class RecipeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'ingredients' => 'required|string',
+            'instructions' => 'required|string',
+            'calories_per_serving' => 'required|integer|min:0',
+            'servings' => 'required|integer|min:1',
+            'cook_time' => 'required|integer|min:1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+        ]);
+
+        // Handle file upload
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('recipes', 'public');
+            $validated['image_url'] = '/storage/' . $path;
+        }
+
+        // Attach the currently authenticated user
+        $validated['user_id'] = auth()->id();
+
+        Recipe::create($validated);
+        return redirect()->route('recipes.index')->with('success', 'Recipe created successfully!');
     }
 
     /**
@@ -35,7 +63,8 @@ class RecipeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $recipe = Recipe::with(['user', 'reviews'])->findOrFail($id);
+        return view('recipes.show', compact('recipe'));
     }
 
     /**
@@ -43,7 +72,8 @@ class RecipeController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $recipe = Recipe::findOrFail($id);
+        return view('recipes.edit', compact('recipe'));
     }
 
     /**
@@ -51,7 +81,25 @@ class RecipeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $recipe = Recipe::findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'ingredients' => 'required|string',
+            'instructions' => 'required|string',
+            'calories_per_serving' => 'required|integer|min:0',
+            'servings' => 'required|integer|min:1',
+            'cook_time' => 'required|integer|min:1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('recipes', 'public');
+            $validated['image_url'] = '/storage/' . $path;
+        }
+
+        $recipe->update($validated);
+        return redirect()->route('recipes.index')->with('success', 'Recipe updated successfully!');
     }
 
     /**
@@ -59,6 +107,8 @@ class RecipeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $recipe = Recipe::findOrFail($id);
+        $recipe->delete();
+        return redirect()->route('recipes.index')->with('success', 'Recipe deleted successfully!');
     }
 }
