@@ -1,5 +1,8 @@
 @php
     use Illuminate\Support\Str;
+    $currentYear = now()->year;
+    $minCreatedAt = \App\Models\Recipe::min('created_at');
+    $firstYear = $minCreatedAt ? \Carbon\Carbon::parse($minCreatedAt)->format('Y') : $currentYear;
 @endphp
 
 <x-app-layout>
@@ -14,23 +17,65 @@
         <form method="GET" action="{{ route('recipes.index') }}" class="mb-6 flex gap-2" id="searchForm">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search recipes..."
                 class="w-full border border-gray-300 rounded px-4 py-2" id="searchInput" />
+            <select name="servings" class="border border-gray-300 rounded px-4 py-2" onchange="this.form.submit()">
+                <option value="">All Servings</option>
+                <option value="1" {{ request('servings') == '1' ? 'selected' : '' }}>1</option>
+                <option value="2" {{ request('servings') == '2' ? 'selected' : '' }}>2</option>
+                <option value="3" {{ request('servings') == '3' ? 'selected' : '' }}>3</option>
+                <option value="more" {{ request('servings') == 'more' ? 'selected' : '' }}>More</option>
+            </select>
+            <select name="cook_time" class="border border-gray-300 rounded px-4 py-2" onchange="this.form.submit()">
+                <option value="">All Cook Times</option>
+                <option value="quick" {{ request('cook_time') == 'quick' ? 'selected' : '' }}>Quick (&le; 30 min)</option>
+                <option value="mid" {{ request('cook_time') == 'mid' ? 'selected' : '' }}>Mid (31-60 min)</option>
+                <option value="long" {{ request('cook_time') == 'long' ? 'selected' : '' }}>Long (&gt; 60 min)</option>
+            </select>
+            <select name="year" class="border border-gray-300 rounded px-4 py-2" onchange="this.form.submit()">
+                <option value="">All Years</option>
+                @for ($year = $currentYear; $year >= $firstYear; $year--)
+                    <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                @endfor
+            </select>
         </form>
 
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const searchInput = document.getElementById('searchInput');
-                const searchForm = document.getElementById('searchForm');
+            $(function() {
                 let timeout = null;
-                searchInput.addEventListener('input', function() {
+                $('#searchInput').on('input', function() {
                     clearTimeout(timeout);
                     timeout = setTimeout(() => {
-                        searchForm.submit();
-                    }, 400); // Debounce for 400ms
+                        $('#searchForm').trigger('submit');
+                    }, 400);
+                });
+
+                $('#searchForm').on('change', 'select', function() {
+                    $('#searchForm').trigger('submit');
+                });
+
+                $('#searchForm').on('submit', function(e) {
+                    e.preventDefault();
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        data: $(this).serialize(),
+                        type: 'GET',
+                        beforeSend: function() {
+                            $('#recipesGrid').html('<div class="col-span-3 text-center text-gray-400 py-12">Loading...</div>');
+                        },
+                        success: function(data) {
+                            // Extract the recipes grid from the returned HTML
+                            let html = $(data).find('#recipesGrid').html();
+                            $('#recipesGrid').html(html);
+                        },
+                        error: function() {
+                            $('#recipesGrid').html('<div class="col-span-3 text-center text-red-400 py-12">Error loading recipes.</div>');
+                        }
+                    });
                 });
             });
         </script>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="recipesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($recipes as $recipe)
                 <div class="bg-white rounded-lg shadow p-0 flex flex-col">
                     <div class="relative">
