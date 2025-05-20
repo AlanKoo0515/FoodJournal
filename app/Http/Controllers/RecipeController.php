@@ -12,13 +12,35 @@ class RecipeController extends Controller
      */
     public function index(Request $request)
     {
-        $recipes = Recipe::query();
+        $query = Recipe::query();
         
         if ($search = $request->input('search')) {
-            $recipes->where('title', 'like', "%{$search}%");
+            $query->where('title', 'like', "%{$search}%");
         }
 
-        $recipes = $recipes->latest()->paginate(10);
+        if ($servings = $request->input('servings')) {
+            if ($servings === 'more') {
+                $query->where('servings', '>', 3);
+            } else {
+                $query->where('servings', $servings);
+            }
+        }
+
+        if ($cookTime = $request->input('cook_time')) {
+            if ($cookTime === 'quick') {
+                $query->where('cook_time', '<=', 30);
+            } elseif ($cookTime === 'mid') {
+                $query->whereBetween('cook_time', [31, 60]);
+            } elseif ($cookTime === 'long') {
+                $query->where('cook_time', '>', 60);
+            }
+        }
+
+        if ($year = $request->input('year')) {
+            $query->whereYear('created_at', $year);
+        }
+
+        $recipes = $query->latest()->paginate(10);
         return view('recipes.index', compact('recipes'));
     }
 
