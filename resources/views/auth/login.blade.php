@@ -26,7 +26,6 @@
   <!-- Header -->
   <header class="d-flex justify-content-center py-3 border-bottom border-secondary">
     <div class="d-flex align-items-center gap-2">
-      <img src="https://storage.googleapis.com/a1aa/image/2fb9d4c2-eed7-441c-de2d-8c64b6cf73d2.jpg" alt="Food Journal logo" width="24" height="24" />
       <span class="fs-6 fw-light text-uppercase">FOOD JOURNAL</span>
     </div>
   </header>
@@ -91,9 +90,12 @@
 </div>
 
 @if ($errors->any())
-  <div>{{ $errors->first() }}</div>
+  <script>
+    window.onload = function() {
+      alert("{{ $errors->first() }}");
+    };
+  </script>
 @endif
-
 <!-- Bootstrap Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

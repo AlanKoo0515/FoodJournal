@@ -25,7 +25,6 @@
 <div class="container border border-secondary mt-4 p-0">
   <!-- Header -->
   <header class="d-flex justify-content-center align-items-center py-3 border-bottom border-secondary">
-    <img src="https://placehold.co/24x24/png?text=🍴" alt="Fork and spoon icon" class="me-2" width="24" height="24" />
     <h1 class="fs-6 fw-normal mb-0">FOOD JOURNAL</h1>
   </header>
 
@@ -34,7 +33,7 @@
     <!-- Image Section -->
     <div class="col-md-6">
       <img
-        src="https://placehold.co/600x400?text=Malaysian+food+wrapped+in+leaves+on+a+plate+placed+on+a+wooden+table+with+a+red+patterned+cloth+underneath"
+        src="{{ asset('images/logoreg.jpg')}}" 
         alt="Malaysian food wrapped in leaves"
         class="img-fluid h-100 object-fit-cover"
       />

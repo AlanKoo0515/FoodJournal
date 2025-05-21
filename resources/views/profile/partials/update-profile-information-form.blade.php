@@ -77,8 +77,9 @@
             <x-input-error class="mt-2" :messages="$errors->get('profile_picture')" />
 
             @if ($user->profile_picture)
-                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile Image"
-                    class="mt-4 w-24 h-24 rounded-full object-cover border" />
+                <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="Profile Image" class="mt-4 w-24 h-24 rounded-full object-cover border" />
+            @else
+                
             @endif
         </div>
 

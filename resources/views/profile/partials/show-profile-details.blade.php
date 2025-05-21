@@ -12,7 +12,7 @@
     <div class="mt-6 space-y-6">
         <!-- Profile Image -->
         <div class="flex items-center space-x-4">
-            <img src="{{ $user->profile_photo_url ?? asset('images/default-profile.png') }}" alt="Profile Photo" class="w-20 h-20 rounded-full object-cover border" />
+            <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : asset('images/default-profile.jpg') }}" alt="Profile Photo" class="w-20 h-20 rounded-full object-cover border" />
             <div>
                 <p class="text-sm text-gray-600">{{ __('Your current profile picture') }}</p>
             </div>

@@ -30,9 +30,9 @@ class ProfileController extends Controller
 
         $user->fill($request->validated());
 
-        if ($request->hasFile('profile_image')) {
-            $imagePath = $request->file('profile_image')->store('profile_image', 'public');
-            $user->profile_picture = $imagePath; // Use the $user variable here
+        if ($request->hasFile('profile_picture')) {
+            $imagePath = $request->file('profile_picture')->store('profile_picture', 'public');
+            $user->profile_picture = $imagePath; 
         }
 
         $user->fill($request->only([
@@ -50,6 +50,7 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
+    
 
     /**
      * Delete the user's account.
