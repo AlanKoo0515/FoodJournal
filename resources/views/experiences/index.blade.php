@@ -95,7 +95,7 @@
                         </div>
                         <div class="flex items-center text-sm text-gray-500 mb-4">
                             <x-heroicon-o-calendar class="h-5 w-5 mr-2 align-middle" />
-                            {{ \Carbon\Carbon::parse($experience->date)->format('n/j/Y') }}
+                            {{ \Carbon\Carbon::parse($experience->date)->format('j/n/Y') }}
                         </div>
                         <div class="mt-auto flex justify-between items-center">
                             <span class="text-xs text-gray-400">Posted at
@@ -113,6 +113,11 @@
                     No culinary experiences found.
                 </div>
             @endforelse
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $experiences->links() }}
         </div>
     </div>
 </x-app-layout>

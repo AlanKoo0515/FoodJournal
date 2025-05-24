@@ -28,9 +28,9 @@ class CulinaryExperienceService
         }
 
         // Sort by creation date
-        $query->orderBy('created_at', 'asc');
+        $query->orderBy('created_at', 'desc');
 
-        return $query->get();
+        return $query->paginate(6);
     }
 
     public function create(array $data)
