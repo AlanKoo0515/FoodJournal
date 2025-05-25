@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -54,7 +55,7 @@ class CommentController extends Controller
     {
         // Check if the authenticated user owns this comment
         if (Auth::id() !== $comment->user_id) {
-            return redirect()->back()->with('error', 'You are not authorized to update this comment.');
+            return redirect()->back()->with('error', 'You are not authorized to update this comment.'); //success&failure messages (usability QD)
         }
         
         $request->validate([

@@ -15,7 +15,7 @@
                 <div class="relative">
                     <button id="quick-guide-btn"
                         class="flex items-center px-3 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg"
-                        data-tooltip="Click for quick filtering guide">
+                        data-toggle="tooltip" title="Click for quick filtering guide">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -26,17 +26,14 @@
                     <!-- Quick Guide Popup -->
                     <div id="quick-guide-popup"
                         class="absolute right-0 top-12 bg-white border rounded-lg shadow-lg p-4 z-50 hidden w-[24rem] break-words">
-                        <div class="text-sm space-y-2">
-                            <h3 class="font-semibold text-gray-900 mb-3">Filter Reviews Easily</h3>
+                        <div class="space-y-2 text-sm">
+                            <h3 class="mb-3 font-semibold text-gray-900">Filter Reviews Easily</h3>
                             <div class="space-y-2">
                                 <div class="flex items-center justify-start">
                                     <span>✨Click star ratings to filter by rating</span>
                                 </div>
                                 <div class="flex items-center justify-start">
                                     <span>✨Filter reviews with photos</span>
-                                </div>
-                                <div class="flex items-center justify-start">
-                                    <span>✨Switch between your reviews and others'</span>
                                 </div>
                                 <div class="pt-2 text-xs text-gray-500">
                                     💡 Tip: Combine filters for more specific results
@@ -88,7 +85,7 @@
 
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             @forelse($reviews as $review)
-                <div class="flex flex-col p-0 bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300">
+                <div class="flex flex-col p-0 transition-shadow duration-300 bg-white rounded-lg shadow hover:shadow-lg">
                     <div class="relative">
                         @if ($review->image_path)
                             <img src="{{ asset('storage/' . $review->image_path) }}" alt="Review image"
@@ -101,14 +98,14 @@
                         @if (auth()->check() && auth()->id() === $review->user_id)
                             <div class="absolute flex space-x-2 top-2 right-2">
                                 <a href="{{ route('reviews.edit', $review->id) }}"
-                                    class="p-2 bg-white rounded-md shadow hover:bg-gray-100 transition-colors" title="Edit">
+                                    class="p-2 transition-colors bg-white rounded-md shadow hover:bg-gray-100" title="Edit">
                                     <x-heroicon-o-pencil-square class="w-5 h-5 text-orange-500" />
                                 </a>
                                 <form action="{{ route('reviews.destroy', $review->id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 bg-white rounded-md shadow hover:bg-gray-100 transition-colors"
+                                    <button type="submit" class="p-2 transition-colors bg-white rounded-md shadow hover:bg-gray-100"
                                         title="Delete">
                                         <x-heroicon-o-trash class="w-5 h-5 text-red-500" />
                                     </button>
@@ -141,7 +138,7 @@
                         <div class="flex items-center justify-between mt-auto">
                             <span class="text-xs text-gray-400">Posted at {{ $review->created_at->format('j/n/Y') }}</span>
                             <a href="{{ route('recipes.show', $review->recipe_id) }}#reviews"
-                                class="flex items-center text-sm font-semibold text-orange-500 hover:underline transition-colors">
+                                class="flex items-center text-sm font-semibold text-orange-500 transition-colors hover:underline">
                                 View Review
                                 <x-heroicon-o-arrow-long-right class="w-4 h-4 ml-1" />
                             </a>
@@ -150,8 +147,8 @@
                 </div>
             @empty
                 <div class="col-span-3 py-12 text-center text-gray-500">
-                    <x-heroicon-o-document-text class="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No reviews found</h3>
+                    <x-heroicon-o-document-text class="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 class="mb-2 text-lg font-medium text-gray-900">No reviews found</h3>
                     <p class="text-gray-500">Try adjusting your filters to see more results.</p>
                 </div>
             @endforelse
@@ -163,95 +160,121 @@
     </div>
 
     <!-- Tooltip Container -->
-    <div id="tooltip" class="absolute z-50 px-3 py-2 text-xs text-white bg-gray-900 rounded-md shadow-lg pointer-events-none opacity-0 transition-opacity duration-200">
-    </div>
-
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-        <div id="success-message" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
-            {{ session('success') }}
+        <div id="tooltip" class="absolute z-50 px-3 py-2 text-xs text-gray-800 transition-opacity duration-200 bg-white border rounded-md shadow-lg opacity-0 pointer-events-none border-white-100 bg-opacity-90 backdrop-blur-sm">
         </div>
-    @endif
 
-    @if(session('error'))
-        <div id="error-message" class="fixed top-4 right-4 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
-            {{ session('error') }}
-        </div>
-    @endif
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div id="success-message" class="fixed z-50 px-4 py-3 text-white transition-transform duration-300 transform translate-x-full bg-green-500 rounded-lg shadow-lg top-4 right-4">
+                {{ session('success') }}
+            </div>
+        @endif
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize tooltips
-            initializeTooltips();
-            
-            // Initialize quick guide
-            initializeQuickGuide();
-            
-            // Show success/error messages
-            showNotifications();
-        });
+        @if(session('error'))
+            <div id="error-message" class="fixed z-50 px-4 py-3 text-white transition-transform duration-300 transform translate-x-full bg-red-500 rounded-lg shadow-lg top-4 right-4">
+                {{ session('error') }}
+            </div>
+        @endif
 
-        function initializeTooltips() {
-            const tooltip = document.getElementById('tooltip');
-            const elementsWithTooltips = document.querySelectorAll('data-tooltip');
-            
-            elementsWithTooltips.forEach(element => {
-                element.addEventListener('mouseenter', function(e) {
-                    const text = this.getAttribute('data-tooltip');
-                    tooltip.textContent = text;
-                    tooltip.classList.remove('opacity-0');
-                    
-                    const rect = this.getBoundingClientRect();
-                    tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-                    tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
-                });
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize tooltips
+                initializeTooltips();
                 
-                element.addEventListener('mouseleave', function() {
-                    tooltip.classList.add('opacity-0');
-                });
+                // Initialize quick guide
+                initializeQuickGuide();
+                
+                // Show success/error messages
+                showNotifications();
             });
-        }
 
-        function initializeQuickGuide() {
-            const guideBtn = document.getElementById('quick-guide-btn');
-            const guidePopup = document.getElementById('quick-guide-popup');
-            
-            if (guideBtn && guidePopup) {
-                guideBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    guidePopup.classList.toggle('hidden');
-                });
+            function initializeTooltips() {
+                const tooltip = document.getElementById('tooltip');
+                const elementsWithTooltips = document.querySelectorAll('[data-toggle="tooltip"]');
+                let tooltipTimeout;
                 
-                // Close on outside click
-                document.addEventListener('click', function(e) {
-                    if (!guideBtn.contains(e.target) && !guidePopup.contains(e.target)) {
-                        guidePopup.classList.add('hidden');
-                    }
+                elementsWithTooltips.forEach(element => {
+                    element.addEventListener('mouseover', function (e) {
+                        const title = this.getAttribute('title');
+                        if (!title) return;
+
+                        clearTimeout(tooltipTimeout);
+
+                        tooltip.textContent = title;
+                        tooltip.classList.remove('opacity-0');
+
+                        this.setAttribute('data-original-title', title);
+                        this.removeAttribute('title');
+
+                        const rect = this.getBoundingClientRect();
+                        tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+                        tooltip.style.top = rect.bottom + 8 + 'px';
+
+                        // Auto-hide tooltip after 2 seconds
+                        tooltipTimeout = setTimeout(() => {
+                            tooltip.classList.add('opacity-0');
+                            
+                            const originalTitle = this.getAttribute('data-original-title');
+                            if (originalTitle) {
+                                this.setAttribute('title', originalTitle);
+                            }
+                        }, 1000);
+                    });
+
+                    element.addEventListener('mouseleave', function () {
+                        
+                        clearTimeout(tooltipTimeout);
+                        
+                        tooltip.classList.add('opacity-0');
+
+                        const originalTitle = this.getAttribute('data-original-title');
+                        if (originalTitle) {
+                            this.setAttribute('title', originalTitle);
+                        }
+                    });
                 });
             }
-        }
 
-        function showNotifications() {
-            const successMessage = document.getElementById('success-message');
-            const errorMessage = document.getElementById('error-message');
-            
-            if (successMessage) {
-                setTimeout(() => {
-                    successMessage.classList.remove('translate-x-full');
-                }, 100);
-                setTimeout(() => {
-                    successMessage.classList.add('translate-x-full');
-                }, 4000);
+
+            function initializeQuickGuide() {
+                const guideBtn = document.getElementById('quick-guide-btn');
+                const guidePopup = document.getElementById('quick-guide-popup');
+                
+                if (guideBtn && guidePopup) {
+                    guideBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        guidePopup.classList.toggle('hidden');
+                    });
+                    
+                    document.addEventListener('click', function(e) {
+                        if (!guideBtn.contains(e.target) && !guidePopup.contains(e.target)) {
+                            guidePopup.classList.add('hidden');
+                        }
+                    });
+                }
             }
-            
-            if (errorMessage) {
-                setTimeout(() => {
-                    errorMessage.classList.remove('translate-x-full');
-                }, 100);
-                setTimeout(() => {
-                    errorMessage.classList.add('translate-x-full');
-                }, 4000);
+
+            function showNotifications() {
+                const successMessage = document.getElementById('success-message');
+                const errorMessage = document.getElementById('error-message');
+                
+                if (successMessage) {
+                    setTimeout(() => {
+                        successMessage.classList.remove('translate-x-full');
+                    }, 100);
+                    setTimeout(() => {
+                        successMessage.classList.add('translate-x-full');
+                    }, 4000);
+                }
+                
+                if (errorMessage) {
+                    setTimeout(() => {
+                        errorMessage.classList.remove('translate-x-full');
+                    }, 100);
+                    setTimeout(() => {
+                        errorMessage.classList.add('translate-x-full');
+                    }, 4000);
+                }
             }
-        }
-    </script>
+        </script>
 </x-app-layout>
