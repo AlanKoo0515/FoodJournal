@@ -1,4 +1,3 @@
-{{-- resources/views/partials/comments.blade.php --}}
 <!-- Display Comments with Edit Functionality -->
 @if($review->comments && $review->comments->count() > 0)
     <div class="pt-3 mt-3 border-t border-gray-200">
