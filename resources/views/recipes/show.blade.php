@@ -95,7 +95,10 @@
         <!-- Reviews Section -->
         <!-- Include the review section -->
         @include('reviews.create')
+<<<<<<< HEAD
         
+=======
+>>>>>>> 1f2e69060898d7df8e47e52bd837271519cebc9a
         </section>
     </div>
 </x-app-layout>
