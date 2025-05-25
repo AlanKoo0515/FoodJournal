@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\CulinaryExperienceController;
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,6 +32,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::get('/recipes/{recipe}/reviews/load-more', [ReviewController::class, 'loadMore'])->name('reviews.load-more');
 
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Recipe routes
+    Route::resource('recipes', RecipeController::class);
+
+    // Culinary Experience routes
+    Route::resource('experiences', CulinaryExperienceController::class);
+
+    // Rating routes
+    Route::resource('ratings', RatingController::class);
 });
 
 require __DIR__.'/auth.php';

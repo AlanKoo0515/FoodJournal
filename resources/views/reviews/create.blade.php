@@ -1,225 +1,249 @@
-@extends('layouts.app')
+<section id="reviews" class="mt-12">
+    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 font-inter">
+                Reviews ({{ $reviews->total() }})
+            </h2>
+            
+            <button id="add-review-button" class="px-4 py-2 font-semibold text-white bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 font-inter">
+                Add Review
+            </button>
+        </div>
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Write a Review for {{ $recipe->title }}</span>
-                    <a href="{{ routes('recipes.show', $recipe->id) }}" class="btn btn-sm btn-outline-secondary">Back to Recipe</a>
-                </div>
+        <!-- Add Review Form (Initially Hidden) -->
+        <div id="review-form-container" class="hidden p-6 mb-8 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm">
+            <h3 class="mb-4 text-xl font-bold text-gray-800 font-inter">Write a Review</h3>
+            
+            <form method="POST" action="{{ route('reviews.store') }}" enctype="multipart/form-data">
+                @csrf
+                
+                <!-- Hidden Recipe ID -->
+                <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
 
-                <div class="card-body">
-                    <div class="alert alert-info" id="review-guide" role="alert">
-                        <h5>Quick Guide: How to write a great review</h5>
-                        <ul>
-                            <li>Rate the recipe by clicking on the stars</li>
-                            <li>Share your experience preparing and enjoying the dish</li>
-                            <li>Upload a photo to show how your dish turned out (optional)</li>
-                        </ul>
-                        <button type="button" class="btn-close" aria-label="Close guide" onclick="document.getElementById('review-guide').style.display='none'"></button>
-                    </div>
-
-                    <form id="reviewForm" method="POST" action="{{ route('reviews.store', $recipe->id) }}" enctype="multipart/form-data">
-                        @csrf
-                        
-                        <!-- Rating stars -->
-                        <div class="form-group mb-3">
-                            <label for="rating" class="form-label">Rating <span class="text-danger">*</span></label>
-                            <div class="rating">
-                                <input type="radio" id="star5" name="rating" value="5" {{ old('rating', $draft->rating ?? '') == 5 ? 'checked' : '' }} aria-label="Rate 5 stars"/>
-                                <label for="star5" title="5 stars"></label>
-                                <input type="radio" id="star4" name="rating" value="4" {{ old('rating', $draft->rating ?? '') == 4 ? 'checked' : '' }} aria-label="Rate 4 stars"/>
-                                <label for="star4" title="4 stars"></label>
-                                <input type="radio" id="star3" name="rating" value="3" {{ old('rating', $draft->rating ?? '') == 3 ? 'checked' : '' }} aria-label="Rate 3 stars"/>
-                                <label for="star3" title="3 stars"></label>
-                                <input type="radio" id="star2" name="rating" value="2" {{ old('rating', $draft->rating ?? '') == 2 ? 'checked' : '' }} aria-label="Rate 2 stars"/>
-                                <label for="star2" title="2 stars"></label>
-                                <input type="radio" id="star1" name="rating" value="1" {{ old('rating', $draft->rating ?? '') == 1 ? 'checked' : '' }} aria-label="Rate 1 star"/>
-                                <label for="star1" title="1 star"></label>
-                            </div>
-                            <div class="invalid-feedback" id="rating-error"></div>
-                        </div>
-
-                        <!-- Comment textarea -->
-                        <div class="form-group mb-3">
-                            <label for="comment" class="form-label">Your Review <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="comment" name="comment" rows="6" 
-                                placeholder="Share your experience with this recipe..." 
-                                aria-describedby="commentHelp">{{ old('comment', $review->comment) }}</textarea>
-                            <div class="invalid-feedback" id="comment-error"></div>
-                        </div>
-
-                        <!-- Image upload with tooltip -->
-                        <div class="form-group mb-3">
-                            <label for="image" class="form-label d-block">
-                                <span>Photo of your dish</span>
-                                <button type="button" class="btn btn-sm btn-outline-primary ms-2" id="uploadBtn" 
-                                    data-bs-toggle="tooltip" data-bs-placement="top" 
-                                    title="Attach a photo of your dish (optional)" 
-                                    aria-label="Upload an image of your dish">
-                                    <i class="bi bi-upload"></i> Upload Image
+                <!-- Rating -->
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm font-medium text-gray-700 font-inter">Rating</label>
+                    <div class="flex items-center">
+                        <div class="flex space-x-1" id="star-rating">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <button type="button" data-rating="{{ $i }}" class="w-10 h-10 text-gray-300 star-btn hover:text-yellow-500 focus:outline-none transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
                                 </button>
-                            </label>
-                            <input type="file" class="form-control-file d-none" id="image" name="image" accept="image/*">
-                            <div class="mt-2" id="imagePreviewContainer" style="{{ $review->image_path ? '' : 'display: none;' }}">
-                                <img id="imagePreview" src="{{ $review->image_path ? Storage::url($review->image_path) : '#' }}" 
-                                     alt="Preview" class="img-thumbnail" style="max-height: 200px;">
-                                <button type="button" class="btn btn-sm btn-danger" id="removeImage">Remove</button>
-                            </div>
-                            <div class="invalid-feedback" id="image-error"></div>
+                            @endfor
                         </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('recipes.show', $recipe->id) }}" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary" aria-label="Update your review">Update Review</button>
-                        </div>
-                    </form>
+                        <input type="hidden" name="rating" id="rating-value" value="{{ old('rating', 0) }}">
+                    </div>
+                    @error('rating')
+                        <p class="mt-1 text-sm text-red-500 font-inter">{{ $message }}</p>
+                    @enderror
                 </div>
+
+                <!-- Comment -->
+                <div class="mb-4">
+                    <label for="comment" class="block text-sm font-medium text-gray-700 font-inter">Review Comment</label>
+                    <textarea id="comment" name="comment" rows="5" class="block w-full mt-1 border-gray-300 rounded-lg shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 font-inter" placeholder="Share your experience with this recipe">{{ old('comment') }}</textarea>
+                    @error('comment')
+                        <p class="mt-1 text-sm text-red-500 font-inter">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Image Upload -->
+                <div class="mb-6">
+                    <label for="image" class="block text-sm font-medium text-gray-700 font-inter">Upload a photo of your dish (Optional)</label>
+                    <div class="flex items-center mt-1">
+                        <input type="file" id="image" name="image" accept="image/*" class="block w-full mt-1 text-sm text-gray-500 font-inter file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 file:font-inter">
+                    </div>
+                    @error('image')
+                        <p class="mt-1 text-sm text-red-500 font-inter">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-end">
+                    <button type="button" id="cancel-review-button" class="px-4 py-2 mr-2 font-semibold text-gray-700 bg-gray-100 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition-all duration-200 font-inter">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 font-semibold text-white bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 font-inter">
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Reviews List -->
+        @forelse ($reviews as $review)
+            <div class="p-6 mb-6 bg-gradient-to-br from-slate-50 to-blue-50 border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center mb-3">
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= $review->rating)
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-yellow-500" style="color: #F59E0B;" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-300" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+                            </svg>
+                        @endif
+                    @endfor
+                    <span class="ml-2 text-sm text-gray-600 font-medium font-inter">{{ $review->rating }}/5</span>
+                </div>
+                
+                <!-- Review Image (if exists) -->
+                @if($review->image_path)
+                    <div class="mb-4">
+                        <img src="{{ Storage::url($review->image_path) }}" alt="Review image" class="rounded-xl max-h-48 shadow-sm">
+                    </div>
+                @endif
+                
+                <!-- Review Comment -->
+                <p class="mb-4 text-gray-700 whitespace-pre-line leading-relaxed font-inter">{{ $review->comment }}</p>
+                
+                <!-- Review Metadata & Reply Button -->
+                <div class="flex items-center justify-between">
+                    <div class="text-xs text-gray-500 font-medium font-inter">
+                        Posted by <span class="text-gray-700 font-semibold">{{ $review->user->name }}</span> on {{ $review->created_at->format('j/n/Y') }}
+                    </div>
+                    <button type="button" class="flex items-center text-sm text-orange-500 reply-button hover:text-orange-700 transition-colors duration-200 font-semibold font-inter" data-review-id="{{ $review->id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        Reply
+                    </button>
+                </div>
+                
+                <!-- Comment Form (Hidden by default) -->
+                <div id="comment-form-{{ $review->id }}" class="hidden pt-4 mt-4 border-t border-gray-200 comment-form">
+                    @include('reviews.partials.comment-form', ['review' => $review])
+                </div>
+                
+                {{-- Comments Section --}}
+                @include('/reviews/partials.comments', ['review' => $review])
             </div>
+           
+        @empty
+            <p class="text-gray-500 text-center py-8 font-inter">No reviews yet. Be the first to review this recipe!</p>
+        @endforelse
+
+        <!-- Pagination -->
+        <div class="mt-8">
+            {{ $reviews->links() }}
         </div>
     </div>
-</div>
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Image preview functionality
-    const uploadBtn = document.getElementById('uploadBtn');
-    const imageInput = document.getElementById('image');
-    const imagePreview = document.getElementById('imagePreview');
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-    const removeImageBtn = document.getElementById('removeImage');
-
-    uploadBtn.addEventListener('click', function() {
-        imageInput.click();
-    });
-
-    imageInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreviewContainer.style.display = 'block';
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    removeImageBtn.addEventListener('click', function() {
-        imageInput.value = '';
-        // If we're editing and had an existing image, we need to mark it for deletion
-        if ('{{ $review->image_path }}') {
-            // Add a hidden input to indicate image should be removed
-            const removeFlag = document.createElement('input');
-            removeFlag.type = 'hidden';
-            removeFlag.name = 'remove_image';
-            removeFlag.value = '1';
-            document.getElementById('editReviewForm').appendChild(removeFlag);
-        }
-        imagePreviewContainer.style.display = 'none';
-    });
-
-    // Form submission with Ajax
-    const form = document.getElementById('editReviewForm');
-    const ratingError = document.getElementById('rating-error');
-    const commentError = document.getElementById('comment-error');
-    const imageError = document.getElementById('image-error');
-
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Reset error messages
-        ratingError.textContent = '';
-        commentError.textContent = '';
-        imageError.textContent = '';
-        
-        const formData = new FormData(this);
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show success message
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-success';
-                alert.textContent = data.message;
-                form.prepend(alert);
-
-                // Redirect after 2 seconds
-                setTimeout(() => {
-                    window.location.href = data.redirect;
-                }, 2000);
-            } else {
-                // Display validation errors
-                if (data.errors) {
-                    if (data.errors.rating) {
-                        document.querySelector('[name="rating"]').classList.add('is-invalid');
-                        ratingError.textContent = data.errors.rating[0];
+    <!-- Star Rating Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle review form
+            const addReviewButton = document.getElementById('add-review-button');
+            const cancelReviewButton = document.getElementById('cancel-review-button');
+            const reviewFormContainer = document.getElementById('review-form-container');
+            
+            if (addReviewButton && cancelReviewButton && reviewFormContainer) {
+                addReviewButton.addEventListener('click', function() {
+                    reviewFormContainer.classList.remove('hidden');
+                    addReviewButton.classList.add('hidden');
+                });
+                
+                cancelReviewButton.addEventListener('click', function() {
+                    reviewFormContainer.classList.add('hidden');
+                    addReviewButton.classList.remove('hidden');
+                    
+                    // Reset the form
+                    const form = reviewFormContainer.querySelector('form');
+                    if (form) {
+                        form.reset();
+                        // Reset star rating to 0
+                        updateStars(0);
+                        document.getElementById('rating-value').value = 0;
                     }
-                    if (data.errors.comment) {
-                        document.getElementById('comment').classList.add('is-invalid');
-                        commentError.textContent = data.errors.comment[0];
-                    }
-                    if (data.errors.image) {
-                        document.getElementById('image').classList.add('is-invalid');
-                        imageError.textContent = data.errors.image[0];
-                    }
-                }
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-danger';
-            alert.textContent = 'There was an issue saving your review. Please try again later.';
-            form.prepend(alert);
-        });
-    });
-});
-</script>
-@endpush
+            
+            // Star rating functionality
+            const starButtons = document.querySelectorAll('.star-btn');
+            const ratingInput = document.getElementById('rating-value');
 
-@section('styles')
-<style>
-/* Rating stars styling */
-.rating {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-}
-.rating input {
-    display: none;
-}
-.rating label {
-    color: #ddd;
-    font-size: 24px;
-    padding: 0 5px;
-    cursor: pointer;
-}
-.rating label:before {
-    content: '★';
-}
-.rating input:checked ~ label {
-    color: #ffc107;
-}
-.rating label:hover,
-.rating label:hover ~ label {
-    color: #ffdb70;
-}
-</style>
-@endsection
+            function updateStars(rating) {
+                starButtons.forEach(button => {
+                    const value = parseInt(button.getAttribute('data-rating'));
+                    if (value <= rating) {
+                        button.classList.remove('text-gray-300');
+                        button.classList.add('text-yellow-500');
+                    } else {
+                        button.classList.remove('text-yellow-500');
+                        button.classList.add('text-gray-300');
+                    }
+                    
+                    // Also update the SVG fill for better visibility
+                    const svg = button.querySelector('svg');
+                    if (svg) {
+                        if (value <= rating) {
+                            svg.style.color = '#F59E0B'; // yellow-500 color
+                        } else {
+                            svg.style.color = '#D1D5DB'; // gray-300 color
+                        }
+                    }
+                });
+            }
+
+            if (starButtons.length > 0 && ratingInput) {
+                starButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const rating = parseInt(this.getAttribute('data-rating'));
+                        ratingInput.value = rating;
+                        updateStars(rating);
+                    });
+                });
+
+                // Initialize stars if old value exists
+                updateStars(parseInt(ratingInput.value) || 0);
+            }
+            
+            // Comment/Reply functionality
+            const replyButtons = document.querySelectorAll('.reply-button');
+            const cancelReplyButtons = document.querySelectorAll('.cancel-reply-button');
+            
+            replyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const reviewId = this.getAttribute('data-review-id');
+                    const commentForm = document.getElementById(`comment-form-${reviewId}`);
+                    
+                    if (commentForm) {
+                        // Hide any other open comment forms first
+                        document.querySelectorAll('.comment-form').forEach(form => {
+                            if (form.id !== `comment-form-${reviewId}` && !form.classList.contains('hidden')) {
+                                form.classList.add('hidden');
+                            }
+                        });
+                        
+                        // Toggle the clicked comment form
+                        commentForm.classList.toggle('hidden');
+                        
+                        // Focus the textarea if form is visible
+                        if (!commentForm.classList.contains('hidden')) {
+                            const textarea = commentForm.querySelector('textarea');
+                            if (textarea) {
+                                textarea.focus();
+                            }
+                        }
+                    }
+                });
+            });
+            
+            cancelReplyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const commentForm = this.closest('.comment-form');
+                    if (commentForm) {
+                        commentForm.classList.add('hidden');
+                        const textarea = commentForm.querySelector('textarea');
+                        if (textarea) {
+                            textarea.value = '';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</section>
