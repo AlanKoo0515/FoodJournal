@@ -1,0 +1,16 @@
+must insert in show recipe
+
+ <!-- Reviews Section -->
+        <!-- Include the review section -->
+        @include('reviews.create')
+
+must also update show controller of recipe
+
+// Paginate reviews 3
+        $reviews = $recipe->reviews()
+            ->with('user')
+            ->latest()
+            ->paginate(3)
+            ->withQueryString(); 
+
+        return view('recipes.show', compact('recipe', 'reviews'));
