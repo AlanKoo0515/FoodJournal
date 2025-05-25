@@ -53,6 +53,7 @@ class DatabaseSeeder extends Seeder
             'recipe_id' => 1, // Assuming recipe ID 1 exists in the recipes table
             'rating' => 5,
             'comment' => 'Delicious! One of the best spaghetti bolognese I have made.',
+            'image_path' => 'https://via.placeholder.com/300x200',
         ]);
 
         Comment::create([

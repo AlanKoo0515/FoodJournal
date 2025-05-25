@@ -5,212 +5,181 @@ namespace App\Http\Controllers;
 use App\Models\Review;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
     /**
-     * Display a listing of reviews for a recipe.
+     * Display a listing of all reviews with filters
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Get first 10 reviews with lazy loading-paginate
-        $reviews = $recipe->reviews()
-            ->with('user')
-            ->where('draft', false)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-                    
-        return view('reviews.index', compact('recipe', 'reviews'));
+        $query = Review::with(['user', 'recipe'])
+            ->latest();
+        
+        // Rating filter
+        if ($request->has('rating') && $request->rating) {
+            $query->where('rating', $request->rating);
+        }
+        
+        // Has image filter
+        if ($request->has('has_image') && $request->has_image) {
+            $query->whereNotNull('image_path');
+        }
+        
+        // Ownership filter
+        $ownership = $request->get('ownership', '');
+        if ($ownership === 'mine') {
+            $query->where('user_id', Auth::id());
+        } elseif ($ownership === 'others') {
+            $query->where('user_id', '!=', Auth::id());
+        }
+        
+        // Generate counts based on current ownership filter
+        $baseQuery = Review::query();
+        if ($ownership === 'mine') {
+            $baseQuery->where('user_id', Auth::id());
+        } elseif ($ownership === 'others') {
+            $baseQuery->where('user_id', '!=', Auth::id());
+        }
+        
+        $counts = [
+            'with_images' => (clone $baseQuery)->whereNotNull('image_path')->count(),
+            '5' => (clone $baseQuery)->where('rating', 5)->count(),
+            '4' => (clone $baseQuery)->where('rating', 4)->count(),
+            '3' => (clone $baseQuery)->where('rating', 3)->count(),
+            '2' => (clone $baseQuery)->where('rating', 2)->count(),
+            '1' => (clone $baseQuery)->where('rating', 1)->count(),
+        ];
+        
+        $reviews = $query->paginate(9);
+        
+        return view('reviews.index', compact('reviews', 'counts'));
     }
 
     /**
-     * Show the form for creating a new review.
+     * Store a newly created review
      */
-    public function create(Recipe $recipe)
+    public function store(Request $request)
     {
-        // Check if user has a draft for this recipe
-        $draft = Review::where('user_id', Auth::id())
-            ->where('recipe_id', $recipe->id)
-            ->where('draft', true)
+        $request->validate([
+            'recipe_id' => 'required|exists:recipes,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|min:3',
+            'image' => 'nullable|image|max:5120',
+        ]);
+        
+        // Check if user already reviewed this recipe
+        $existingReview = Review::where('user_id', Auth::id())
+            ->where('recipe_id', $request->recipe_id)
             ->first();
             
-        return view('reviews.create', compact('recipe', 'draft'));
-    }
-
-    /**
-     * Store a newly created review in storage.
-     */
-    public function store(Request $request, Recipe $recipe)
-    {
-        $validator = Validator::make($request->all(), [
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|min:5',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+        if ($existingReview) {
+            return redirect()->back()->with('error', 'You have already reviewed this recipe.');
         }
-
-        $review = new Review([
-            'recipe_id' => $recipe->id,
-            'user_id' => Auth::id(),
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'draft' => false,
-        ]);
-
+        
+        $review = new Review();
+        $review->user_id = Auth::id();
+        $review->recipe_id = $request->recipe_id;
+        $review->rating = $request->rating;
+        $review->comment = $request->comment;
+        
+        // Handle image upload
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('reviews', 'public');
+            $path = $request->file('image')->store('review-images', 'public');
             $review->image_path = $path;
         }
-
+        
         $review->save();
-
-        // Delete any drafts
-        Review::where('user_id', Auth::id())
-            ->where('recipe_id', $recipe->id)
-            ->where('draft', true)
-            ->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Review submitted successfully!',
-            'redirect' => route('recipes.show', $recipe->id)
-        ]);
-    }
-
-     /**
-     * Save a review draft automatically. //for sqd
-     */
-    public function saveDraft(Request $request, Recipe $recipe)
-    {
-        $draft = Review::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'recipe_id' => $recipe->id,
-                'draft' => true,
-            ],
-            [
-                'rating' => $request->rating,
-                'comment' => $request->comment,
-                'draft_updated_at' => now(),
-            ]
-        );
-        // don't handle image uploads in auto-save to keep it light
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Draft saved',
-            'draft_updated_at' => $draft->draft_updated_at->diffForHumans()
-        ]);
+        
+        return redirect()->back()->with('success', 'Your review has been posted.');
     }
 
     /**
-     * Display the specified review.
+     * Show the form for editing the specified review
      */
+    public function edit($id)
+    {
+        $review = Review::findOrFail($id);
+        
+        // Check if the authenticated user owns this review
+        if (Auth::id() !== $review->user_id) {
+            return redirect()->back()->with('error', 'You are not authorized to edit this review.');
+        }
+        
+        return view('reviews.edit', compact('review'));
+    }
+
+    /**
+     * Update the specified review
+     */
+    public function update(Request $request, Review $review)
+    {
+        // Check if the authenticated user owns this review
+        if (Auth::id() !== $review->user_id) {
+            return redirect()->back()->with('error', 'You are not authorized to update this review.');
+        }
+        
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|min:3',
+            'image' => 'nullable|image|max:5120',
+        ]);
+        
+        $review->rating = $request->rating;
+        $review->comment = $request->comment;
+        
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image 
+            if ($review->image_path) {
+                Storage::disk('public')->delete($review->image_path);
+            }
+            
+            $path = $request->file('image')->store('review-images', 'public');
+            $review->image_path = $path;
+        }
+        
+        // Remove image if requested
+        if ($request->has('remove_image') && $review->image_path) {
+            Storage::disk('public')->delete($review->image_path);
+            $review->image_path = null;
+        }
+        
+        $review->save();
+        
+        return redirect()->route('recipes.show', $review->recipe_id)
+            ->with('success', 'Your review has been updated.');
+    }
+
     public function show(Review $review)
     {
+        $review->load(['comments.user']); // Eager load comments with users
         return view('reviews.show', compact('review'));
     }
 
     /**
-     * Show the form for editing the specified review.
-     */
-    public function edit(Review $review)
-    {
-        // Authorization check
-        if ($review->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $recipe = $review->recipe;
-        return view('reviews.edit', compact('review', 'recipe'));
-    }
-
-    /**
-     * Update the specified review in storage.
-     */
-    public function update(Request $request, Review $review)
-    {
-        // Authorization check
-        if ($review->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $validator = Validator::make($request->all(), [
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|min:5',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $review->rating = $request->rating;
-        $review->comment = $request->comment;
-
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($review->image_path) {
-                Storage::disk('public')->delete($review->image_path);
-            }
-            $path = $request->file('image')->store('reviews', 'public');
-            $review->image_path = $path;
-        }
-
-        $review->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Review updated successfully!',
-            'redirect' => route('recipes.show', $review->recipe_id)
-        ]);
-    }
-
-    /**
-     * Remove the specified review from storage.
+     * Remove the specified review
      */
     public function destroy(Review $review)
     {
-        // Authorization check
-        if ($review->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
+        // Check if the authenticated user owns this review
+        if (Auth::id() !== $review->user_id) {
+            return redirect()->back()->with('error', 'You are not authorized to delete this review.');
         }
-
-        // Delete image if exists
+        
+        // Delete image 
         if ($review->image_path) {
             Storage::disk('public')->delete($review->image_path);
         }
-
+        
+        // Delete comments (should be handled by cascade, but explicit is safer)
+        $review->comments()->delete();
+        
+        // Delete review
         $review->delete();
-
-        return redirect()->route('recipes.show', $review->recipe_id)
-            ->with('success', 'Review deleted successfully!');
-    }
-
-    /**
-     * Load more reviews (for lazy loading).
-     */
-    public function loadMore(Request $request, Recipe $recipe)
-    {
-        $page = $request->get('page', 1);
-        $reviews = $recipe->reviews()
-            ->with('user')
-            ->where('draft', false)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10, ['*'], 'page', $page);
-            
-        return view('reviews.partials.review-list', compact('reviews'))->render();
+        
+        return redirect()->back()->with('success', 'Your review has been deleted.');
     }
 }

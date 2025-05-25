@@ -86,7 +86,16 @@ class RecipeController extends Controller
     public function show(string $id)
     {
         $recipe = Recipe::with(['user', 'reviews'])->findOrFail($id);
-        return view('recipes.show', compact('recipe'));
+         
+        // Paginate reviews 3
+        $reviews = $recipe->reviews()
+            ->with('user')
+            ->latest()
+            ->paginate(10)
+            ->withQueryString(); 
+
+        return view('recipes.show', compact('recipe', 'reviews'));
+
     }
 
     /**
