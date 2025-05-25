@@ -92,5 +92,9 @@
                 </div>
             </div>
         </div>
+        <!-- Reviews Section -->
+        <!-- Include the review section -->
+        @include('reviews.create')
+        </section>
     </div>
 </x-app-layout>
