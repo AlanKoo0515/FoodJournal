@@ -93,6 +93,9 @@
     name="password_confirmation"
     required
   />
+  <small class="text-muted">
+  Password must be at least 8 characters.
+</small>
 </div>
 
 
