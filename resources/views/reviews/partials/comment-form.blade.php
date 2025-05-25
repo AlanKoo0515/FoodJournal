@@ -1,5 +1,3 @@
-{{-- resources/views/reviews/partials/comment-form.blade.php --}}
-
 <form method="POST" action="{{ route('comments.store') }}" class="space-y-3">
     @csrf
     <input type="hidden" name="review_id" value="{{ $review->id }}">
