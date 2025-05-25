@@ -18,33 +18,38 @@ class ReviewController extends Controller
         $query = Review::with(['user', 'recipe'])
             ->latest();
         
-        // Rating filter
-        if ($request->has('rating') && $request->rating) {
-            $query->where('rating', $request->rating);
-        }
-        
-        // Has image filter
-        if ($request->has('has_image') && $request->has_image) {
-            $query->whereNotNull('image_path');
-        }
-        
-        // Ownership filter
+        // Get filter parameters
+        $rating = $request->get('rating');
+        $hasImage = $request->get('has_image');
         $ownership = $request->get('ownership', '');
-        if ($ownership === 'mine') {
+        
+        // Apply ownership filter first (affects base query for counts)
+        if ($ownership === 'mine' && Auth::check()) {
             $query->where('user_id', Auth::id());
-        } elseif ($ownership === 'others') {
+        } elseif ($ownership === 'others' && Auth::check()) {
             $query->where('user_id', '!=', Auth::id());
         }
         
-        // Generate counts based on current ownership filter
+        // Apply rating filter
+        if ($rating && in_array($rating, [1, 2, 3, 4, 5])) {
+            $query->where('rating', $rating);
+        }
+        
+        // Apply image filter
+        if ($hasImage) {
+            $query->whereNotNull('image_path');
+        }
+        
+        // Generate counts for filter buttons (respects ownership filter only)
         $baseQuery = Review::query();
-        if ($ownership === 'mine') {
+        if ($ownership === 'mine' && Auth::check()) {
             $baseQuery->where('user_id', Auth::id());
-        } elseif ($ownership === 'others') {
+        } elseif ($ownership === 'others' && Auth::check()) {
             $baseQuery->where('user_id', '!=', Auth::id());
         }
         
         $counts = [
+            'total' => (clone $baseQuery)->count(),
             'with_images' => (clone $baseQuery)->whereNotNull('image_path')->count(),
             '5' => (clone $baseQuery)->where('rating', 5)->count(),
             '4' => (clone $baseQuery)->where('rating', 4)->count(),
@@ -53,7 +58,7 @@ class ReviewController extends Controller
             '1' => (clone $baseQuery)->where('rating', 1)->count(),
         ];
         
-        $reviews = $query->paginate(9);
+        $reviews = $query->paginate(9)->appends($request->all());
         
         return view('reviews.index', compact('reviews', 'counts'));
     }
@@ -63,7 +68,7 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([ //validation feedback (usability QD)
+        $request->validate([
             'recipe_id' => 'required|exists:recipes,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|min:3',
@@ -155,15 +160,13 @@ class ReviewController extends Controller
 
     public function show(Review $review)
     {
-         $comments = $review->comments()
-        ->with('user')
-        ->orderBy('created_at', 'desc') // or 'asc' depending on your preference
-        ->paginate(5);
+        $comments = $review->comments()
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
 
-        return view('recipes.show', $review->recipe_id->comments);
+        return view('reviews.show', compact('review', 'comments'));
     }
-
-    
 
     /**
      * Remove the specified review
