@@ -63,7 +63,7 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $request->validate([ //validation feedback (usability QD)
             'recipe_id' => 'required|exists:recipes,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'required|string|min:3',
@@ -155,9 +155,15 @@ class ReviewController extends Controller
 
     public function show(Review $review)
     {
-        $review->load(['comments.user']); // Eager load comments with users
-        return view('reviews.show', compact('review'));
+         $comments = $review->comments()
+        ->with('user')
+        ->orderBy('created_at', 'desc') // or 'asc' depending on your preference
+        ->paginate(5);
+
+        return view('recipes.show', $review->recipe_id->comments);
     }
+
+    
 
     /**
      * Remove the specified review

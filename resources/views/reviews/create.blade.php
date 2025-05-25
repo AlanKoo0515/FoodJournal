@@ -5,13 +5,13 @@
                 Reviews ({{ $reviews->total() }})
             </h2>
             
-            <button id="add-review-button" class="px-4 py-2 font-semibold text-white bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 font-inter">
+            <button id="add-review-button" class="px-4 py-2 font-semibold text-white transition-all duration-200 bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg font-inter">
                 Add Review
             </button>
         </div>
 
         <!-- Add Review Form (Initially Hidden) -->
-        <div id="review-form-container" class="hidden p-6 mb-8 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm">
+        <div id="review-form-container" class="hidden p-6 mb-8 border border-gray-200 shadow-sm bg-gradient-to-br from-gray-50 to-white rounded-xl">
             <h3 class="mb-4 text-xl font-bold text-gray-800 font-inter">Write a Review</h3>
             
             <form method="POST" action="{{ route('reviews.store') }}" enctype="multipart/form-data">
@@ -26,7 +26,7 @@
                     <div class="flex items-center">
                         <div class="flex space-x-1" id="star-rating">
                             @for ($i = 1; $i <= 5; $i++)
-                                <button type="button" data-rating="{{ $i }}" class="w-10 h-10 text-gray-300 star-btn hover:text-yellow-500 focus:outline-none transition-colors duration-200">
+                                <button type="button" data-rating="{{ $i }}" class="w-10 h-10 text-gray-300 transition-colors duration-200 star-btn hover:text-yellow-500 focus:outline-none">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                     </svg>
@@ -62,10 +62,10 @@
 
                 <!-- Submit Button -->
                 <div class="flex items-center justify-end">
-                    <button type="button" id="cancel-review-button" class="px-4 py-2 mr-2 font-semibold text-gray-700 bg-gray-100 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md transition-all duration-200 font-inter">
+                    <button type="button" id="cancel-review-button" class="px-4 py-2 mr-2 font-semibold text-gray-700 transition-all duration-200 bg-gray-100 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow-md font-inter">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 font-semibold text-white bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg transition-all duration-200 font-inter">
+                    <button type="submit" class="px-4 py-2 font-semibold text-white transition-all duration-200 bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg font-inter" data-toggle="tooltip" title="Click to submit review">
                         Submit Review
                     </button>
                 </div>
@@ -74,7 +74,7 @@
 
         <!-- Reviews List -->
         @forelse ($reviews as $review)
-            <div class="p-6 mb-6 bg-gradient-to-br from-slate-50 to-blue-50 border border-gray-100 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="p-6 mb-6 transition-shadow duration-300 border border-gray-100 shadow-md bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl hover:shadow-lg">
                 <div class="flex items-center mb-3">
                     @for ($i = 1; $i <= 5; $i++)
                         @if ($i <= $review->rating)
@@ -87,25 +87,25 @@
                             </svg>
                         @endif
                     @endfor
-                    <span class="ml-2 text-sm text-gray-600 font-medium font-inter">{{ $review->rating }}/5</span>
+                    <span class="ml-2 text-sm font-medium text-gray-600 font-inter">{{ $review->rating }}/5</span>
                 </div>
                 
                 <!-- Review Image (if exists) -->
                 @if($review->image_path)
                     <div class="mb-4">
-                        <img src="{{ Storage::url($review->image_path) }}" alt="Review image" class="rounded-xl max-h-48 shadow-sm">
+                        <img src="{{ Storage::url($review->image_path) }}" alt="Review image" class="shadow-sm rounded-xl max-h-48">
                     </div>
                 @endif
                 
                 <!-- Review Comment -->
-                <p class="mb-4 text-gray-700 whitespace-pre-line leading-relaxed font-inter">{{ $review->comment }}</p>
+                <p class="mb-4 leading-relaxed text-gray-700 whitespace-pre-line font-inter">{{ $review->comment }}</p>
                 
                 <!-- Review Metadata & Reply Button -->
                 <div class="flex items-center justify-between">
-                    <div class="text-xs text-gray-500 font-medium font-inter">
-                        Posted by <span class="text-gray-700 font-semibold">{{ $review->user->name }}</span> on {{ $review->created_at->format('j/n/Y') }}
+                    <div class="text-xs font-medium text-gray-500 font-inter">
+                        Posted by <span class="font-semibold text-gray-700">{{ $review->user->name }}</span> on {{ $review->created_at->format('j/n/Y') }}
                     </div>
-                    <button type="button" class="flex items-center text-sm text-orange-500 reply-button hover:text-orange-700 transition-colors duration-200 font-semibold font-inter" data-review-id="{{ $review->id }}">
+                    <button type="button" class="flex items-center text-sm font-semibold text-orange-500 transition-colors duration-200 reply-button hover:text-orange-700 font-inter" data-review-id="{{ $review->id }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
@@ -115,15 +115,65 @@
                 
                 <!-- Comment Form (Hidden by default) -->
                 <div id="comment-form-{{ $review->id }}" class="hidden pt-4 mt-4 border-t border-gray-200 comment-form">
-                    @include('reviews.partials.comment-form', ['review' => $review])
+                    <form method="POST" action="{{ route('comments.store') }}" class="space-y-3">
+                        @csrf
+                        <input type="hidden" name="review_id" value="{{ $review->id }}">
+                        
+                        <!-- Comment Textarea -->
+                        <div>
+                            <label for="comment-{{ $review->id }}" class="sr-only">Write a comment</label>
+                            <textarea 
+                                id="comment-{{ $review->id }}"
+                                name="content" 
+                                rows="3" 
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-inter"
+                                placeholder="Write a thoughtful comment..."
+                                required
+                                maxlength="500"
+                            ></textarea>
+                            <div class="flex items-center justify-between mt-1">
+                                <span class="text-xs text-gray-400 font-inter">Maximum 500 characters</span>
+                                <span class="text-xs text-gray-400 font-inter char-counter">0/500</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <!-- Emoji/Reaction buttons (optional) -->
+                                <div class="items-center hidden space-x-1 sm:flex">
+                                    <span class="text-xs text-gray-500 font-inter">Quick reactions:</span>
+                                    <button type="button" class="text-lg transition-transform duration-200 hover:scale-110 reaction-btn" data-reaction="💯">💯</button>
+                                    <button type="button" class="text-lg transition-transform duration-200 hover:scale-110 reaction-btn" data-reaction="🤩">🤩</button>
+                                    <button type="button" class="text-lg transition-transform duration-200 hover:scale-110 reaction-btn" data-reaction="❤️">❤️</button>
+                                    <button type="button" class="text-lg transition-transform duration-200 hover:scale-110 reaction-btn" data-reaction="🔥">🔥</button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" class="px-3 py-2 text-sm font-semibold text-gray-600 transition-colors duration-200 rounded-md cancel-reply-button hover:text-gray-800 font-inter hover:bg-gray-100">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-2 text-sm font-semibold text-white transition-all duration-200 bg-orange-500 rounded-lg shadow-sm hover:bg-orange-600 hover:shadow-md font-inter disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                        Post Comment
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                
+              
                 {{-- Comments Section --}}
-                @include('/reviews/partials.comments', ['review' => $review])
+                @include('reviews.partials.comments', ['review' => $review])
             </div>
+            
            
         @empty
-            <p class="text-gray-500 text-center py-8 font-inter">No reviews yet. Be the first to review this recipe!</p>
+            <p class="py-8 text-center text-gray-500 font-inter">No reviews yet. Be the first to review this recipe!</p>
         @endforelse
 
         <!-- Pagination -->
@@ -132,7 +182,7 @@
         </div>
     </div>
 
-    <!-- Star Rating Script -->
+    <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Toggle review form
@@ -241,6 +291,53 @@
                         if (textarea) {
                             textarea.value = '';
                         }
+                    }
+                });
+            });
+
+            // Character counter for comment textarea
+            const commentTextareas = document.querySelectorAll('textarea[name="content"]');
+            
+            commentTextareas.forEach(textarea => {
+                const charCounter = textarea.closest('form').querySelector('.char-counter');
+                
+                if (charCounter) {
+                    textarea.addEventListener('input', function() {
+                        const length = this.value.length;
+                        charCounter.textContent = `${length}/500`;
+                        
+                        // Change color based on character count
+                        if (length > 450) {
+                            charCounter.classList.add('text-red-500');
+                            charCounter.classList.remove('text-gray-400', 'text-yellow-500');
+                        } else if (length > 350) {
+                            charCounter.classList.add('text-yellow-500');
+                            charCounter.classList.remove('text-gray-400', 'text-red-500');
+                        } else {
+                            charCounter.classList.add('text-gray-400');
+                            charCounter.classList.remove('text-yellow-500', 'text-red-500');
+                        }
+                        
+                        // Disable submit button if over limit
+                        const submitBtn = this.closest('form').querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = length > 500;
+                        }
+                    });
+                }
+            });
+            
+            // Quick reaction buttons
+            const reactionButtons = document.querySelectorAll('.reaction-btn');
+            reactionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const reaction = this.getAttribute('data-reaction');
+                    const textarea = this.closest('form').querySelector('textarea');
+                    if (textarea) {
+                        textarea.value += reaction + ' ';
+                        textarea.focus();
+                        // Trigger input event to update character counter
+                        textarea.dispatchEvent(new Event('input'));
                     }
                 });
             });

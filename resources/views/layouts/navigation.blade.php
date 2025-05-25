@@ -20,7 +20,7 @@
                 <x-nav-link :href="route('experiences.index')" :active="request()->routeIs('experiences.*')">
                     {{ __('Culinary Experience') }}
                 </x-nav-link>
-                <x-nav-link :href="route('ratings.index')" :active="request()->routeIs('ratings.*')">
+                <x-nav-link :href="route('reviews.index')" :active="request()->routeIs('reviews.*')">
                     {{ __('Rating') }}
                 </x-nav-link>
 
@@ -83,7 +83,7 @@
             <x-responsive-nav-link :href="route('experiences.index')" :active="request()->routeIs('experiences.*')">
                 {{ __('Culinary Experience') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('ratings.index')" :active="request()->routeIs('ratings.*')">
+            <x-responsive-nav-link :href="route('reviews.index')" :active="request()->routeIs('reviews.*')">
                 {{ __('Rating') }}
             </x-responsive-nav-link>
         </div>

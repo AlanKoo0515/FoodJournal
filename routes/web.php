@@ -3,7 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\CulinaryExperienceController;
-use App\Http\Controllers\RatingController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,7 +27,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('experiences', CulinaryExperienceController::class);
 
     // Rating routes
-    Route::resource('ratings', RatingController::class);
+    Route::resource('reviews', ReviewController::class);
+
+    Route::resource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
 });
 
 require __DIR__.'/auth.php';
