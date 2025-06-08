@@ -87,7 +87,7 @@ class RecipeController extends Controller
     {
         $recipe = Recipe::with(['user', 'reviews'])->findOrFail($id);
          
-        // Paginate reviews 3
+        // Paginate reviews 
         $reviews = $recipe->reviews()
             ->with('user')
             ->latest()
