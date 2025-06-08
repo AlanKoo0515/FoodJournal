@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <section id="reviews" class="mt-12">
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
         <div class="flex items-center justify-between mb-6">
@@ -176,20 +175,6 @@
         @empty
             <p class="py-8 text-center text-gray-500 font-inter">No reviews yet. Be the first to review this recipe!</p>
         @endforelse
-=======
-<section id="reviews" class="mt-8">
-    <div class="overflow-hidden bg-gray-100 border border-gray-200 rounded-xl">
-        <div class="p-6 bg-white">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-gray-900">
-                    Reviews ({{ $reviews->total() }})
-                </h2>
-                
-                <button id="add-review-button" class="px-3 py-2 text-sm font-semibold text-white transition-all duration-200 bg-orange-500 rounded-lg shadow-md hover:bg-orange-600 hover:shadow-lg">
-                    Add Review
-                </button>
-            </div>
->>>>>>> b9e9ac6a5a638c2fe97cdb247a842d9e86d71826
 
             <!-- Add Review Form (Initially Hidden) -->
             <div id="review-form-container" class="hidden p-4 mb-6 border border-gray-200 rounded-lg shadow-sm bg-gradient-to-br from-gray-50 to-white">

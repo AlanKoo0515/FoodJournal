@@ -35,12 +35,6 @@
                                 <div class="flex items-center justify-start">
                                     <span>✨Filter reviews with photos</span>
                                 </div>
-<<<<<<< HEAD
-=======
-                                <div class="flex items-center justify-start">
-                                    <span>✨Combine multiple filters</span>
-                                </div>
->>>>>>> b9e9ac6a5a638c2fe97cdb247a842d9e86d71826
                                 <div class="pt-2 text-xs text-gray-500">
                                     💡 Tip: Use "Clear All" to reset filters
                                 </div>
@@ -233,33 +227,15 @@
     </div>
 
     <!-- Tooltip Container -->
-<<<<<<< HEAD
         <div id="tooltip" class="absolute z-50 px-3 py-2 text-xs text-gray-800 transition-opacity duration-200 bg-white border rounded-md shadow-lg opacity-0 pointer-events-none border-white-100 bg-opacity-90 backdrop-blur-sm">
-=======
-    <div id="tooltip" class="absolute z-50 px-3 py-2 text-xs text-gray-800 transition-opacity duration-200 bg-white border rounded-md shadow-lg opacity-0 pointer-events-none border-white-100 bg-opacity-90 backdrop-blur-sm">
-    </div>
-
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-        <div id="success-message" class="fixed z-50 px-4 py-3 text-white transition-transform duration-300 transform translate-x-full bg-green-500 rounded-lg shadow-lg top-4 right-4">
-            {{ session('success') }}
->>>>>>> b9e9ac6a5a638c2fe97cdb247a842d9e86d71826
         </div>
 
-<<<<<<< HEAD
         <!-- Success/Error Messages -->
         @if(session('success'))
             <div id="success-message" class="fixed z-50 px-4 py-3 text-white transition-transform duration-300 transform translate-x-full bg-green-500 rounded-lg shadow-lg top-4 right-4">
                 {{ session('success') }}
             </div>
         @endif
-=======
-    @if(session('error'))
-        <div id="error-message" class="fixed z-50 px-4 py-3 text-white transition-transform duration-300 transform translate-x-full bg-red-500 rounded-lg shadow-lg top-4 right-4">
-            {{ session('error') }}
-        </div>
-    @endif
->>>>>>> b9e9ac6a5a638c2fe97cdb247a842d9e86d71826
 
         @if(session('error'))
             <div id="error-message" class="fixed z-50 px-4 py-3 text-white transition-transform duration-300 transform translate-x-full bg-red-500 rounded-lg shadow-lg top-4 right-4">
@@ -267,7 +243,6 @@
             </div>
         @endif
 
-<<<<<<< HEAD
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Initialize tooltips
@@ -278,52 +253,6 @@
                 
                 // Show success/error messages
                 showNotifications();
-=======
-        function initializeTooltips() {
-            const tooltip = document.getElementById('tooltip');
-            const elementsWithTooltips = document.querySelectorAll('[data-toggle="tooltip"]');
-            let tooltipTimeout;
-            
-            elementsWithTooltips.forEach(element => {
-                element.addEventListener('mouseover', function (e) {
-                    const title = this.getAttribute('title');
-                    if (!title) return;
-
-                    clearTimeout(tooltipTimeout);
-
-                    tooltip.textContent = title;
-                    tooltip.classList.remove('opacity-0');
-
-                    this.setAttribute('data-original-title', title);
-                    this.removeAttribute('title');
-
-                    const rect = this.getBoundingClientRect();
-                    tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-                    tooltip.style.top = rect.bottom + 8 + 'px';
-
-                    // Auto-hide tooltip after 2 seconds
-                    tooltipTimeout = setTimeout(() => {
-                        tooltip.classList.add('opacity-0');
-                        
-                        const originalTitle = this.getAttribute('data-original-title');
-                        if (originalTitle) {
-                            this.setAttribute('title', originalTitle);
-                        }
-                    }, 1000);
-                });
-
-                element.addEventListener('mouseleave', function () {
-                    
-                    clearTimeout(tooltipTimeout);
-                    
-                    tooltip.classList.add('opacity-0');
-
-                    const originalTitle = this.getAttribute('data-original-title');
-                    if (originalTitle) {
-                        this.setAttribute('title', originalTitle);
-                    }
-                });
->>>>>>> b9e9ac6a5a638c2fe97cdb247a842d9e86d71826
             });
 
             function initializeTooltips() {
@@ -331,7 +260,6 @@
                 const elementsWithTooltips = document.querySelectorAll('[data-toggle="tooltip"]');
                 let tooltipTimeout;
                 
-<<<<<<< HEAD
                 elementsWithTooltips.forEach(element => {
                     element.addEventListener('mouseover', function (e) {
                         const title = this.getAttribute('title');
@@ -371,12 +299,6 @@
                             this.setAttribute('title', originalTitle);
                         }
                     });
-=======
-                document.addEventListener('click', function(e) {
-                    if (!guideBtn.contains(e.target) && !guidePopup.contains(e.target)) {
-                        guidePopup.classList.add('hidden');
-                    }
->>>>>>> b9e9ac6a5a638c2fe97cdb247a842d9e86d71826
                 });
             }
 
