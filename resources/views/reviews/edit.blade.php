@@ -42,7 +42,7 @@
                                 </button>
                             @endfor
                         </div>
-                        <input type="hidden" name="rating" id="rating-value" value="{{ old('rating', $review->rating) }}">
+                        <input type="hidden" name="rating" id="rating-value" value="{{ old('rating', $review->rating) }}"> <!-- validation feedback u QD -->
                     </div>
                     @error('rating')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -111,7 +111,7 @@
 
                 <!-- Buttons -->
                 <div class="flex items-center justify-end space-x-3">
-                    <a href="{{ route('recipes.show', $review->recipe_id) }}#reviews" class="px-4 py-2 font-bold text-gray-800 bg-gray-200 rounded hover:bg-gray-300">
+                    <a href="{{ route('reviews.index', $review->recipe_id) }}#reviews" class="px-4 py-2 font-bold text-gray-800 bg-gray-200 rounded hover:bg-gray-300">
                         Cancel
                     </a>
                     <button type="submit" class="px-4 py-2 font-bold text-white bg-orange-500 rounded hover:bg-orange-600">
