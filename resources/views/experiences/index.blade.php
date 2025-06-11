@@ -47,7 +47,7 @@
                 <div class="bg-white rounded-lg shadow p-0 flex flex-col">
                     <div class="relative">
                         @if ($experience->image_url)
-                            @if (Str::startsWith($experience->image_url, '/storage/'))
+                            @if (Str::startsWith($experience->image_url, '/storage/app/public/experiences'))
                                 <img src="{{ $experience->image_url }}" alt="{{ $experience->title }}"
                                     class="w-full h-64 object-cover rounded-t-lg">
                             @else
